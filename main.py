@@ -6,6 +6,7 @@ import subprocess
 import re
 import sys
 import pathlib
+import shutil
 asmr_chars = re.compile("asmr|special", re.IGNORECASE)
 karaoke_chars = re.compile("karaoke|🎵|sing", re.IGNORECASE)
 game_chars = re.compile("undertale|minecraft", re.IGNORECASE)
@@ -42,6 +43,8 @@ def schedule_download(stream, output, category):
 
 def finish_download(stream, output, category):
     # Handle streams once they're finished
+    shutil.move(output, "/mnt/array/hololive/{}/{}.mkv".format(category, stream["title"]))
+    downloads.done.append(stream["youtube_url"])
     pass
 
 for day in hololive.streams.schedule["schedule"]:
