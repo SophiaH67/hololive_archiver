@@ -18,6 +18,9 @@ class downloads:
 # Because stream is not a copy, but a pointer, there is no need to
 # implement rescheduling logic, simply syncing should do the trick
 def schedule_download(stream, output, category):
+    if pathlib.Path(output).exists():
+        downloads.done.append(stream["youtube_url"])
+        return
     while not stream["youtube_url"] in downloads.done:
         time.sleep(10)
         current_time = datetime.datetime.utcnow()
