@@ -5,6 +5,7 @@ import datetime
 import subprocess
 import re
 import sys
+import pathlib
 asmr_chars = re.compile("asmr|special", re.IGNORECASE)
 karaoke_chars = re.compile("karaoke|🎵|sing", re.IGNORECASE)
 game_chars = re.compile("undertale|minecraft", re.IGNORECASE)
@@ -28,7 +29,7 @@ def schedule_download(stream, output, category):
         p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT)
         p.communicate()
-        if p.returncode != 0:
+        if p.returncode != 0 or not pathlib.Path(output).exists():
             print(stream)
             continue # Retry untill it works
 
