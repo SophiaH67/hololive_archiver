@@ -15,12 +15,12 @@ def periodic_sync():
     while True:
         """Sync every 1 minute, no rate limiting is needed,
         but it makes it so that python isn't busy with a sync all the time"""
-        sync()
         time.sleep(60)
+        sync()
         
-
-streams.sync_thread = threading.Thread(target=periodic_sync)
-streams.sync_thread.run()
+sync()
+streams.sync_thread = threading.Thread(target=periodic_sync, daemon=True)
+streams.sync_thread.start()
 
 if __name__ == "__main__":
     
