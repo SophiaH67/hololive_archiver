@@ -19,9 +19,9 @@ class downloads:
 def schedule_download(stream, output, category):
     while not stream["youtube_url"] in downloads.done:
         time.sleep(10)
-        current_time = datetime.datetime.now()
+        current_time = datetime.datetime.utcnow()
         stream_time = stream["datetime"]
-        if current_time > stream_time :
+        if stream_time > current_time:
             continue
         cmd = ["streamlink", stream["youtube_url"], "best", "-o", output]
         print(cmd)
