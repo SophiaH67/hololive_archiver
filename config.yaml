@@ -1,0 +1,13 @@
+categories:
+    karaoke: # trigger words
+        - "🎵"
+        - "karaoke"
+        - "sing"
+    asmr:
+        - "asmr"
+    game:
+        - "undertale"
+
+locations:
+    tmp: /mnt/array/tmp/
+    final: /mnt/array/hololive/

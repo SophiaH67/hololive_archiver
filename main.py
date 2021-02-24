@@ -7,14 +7,19 @@ import re
 import sys
 import pathlib
 import shutil
-asmr_chars = re.compile("asmr|special", re.IGNORECASE)
-karaoke_chars = re.compile("karaoke|🎵|sing", re.IGNORECASE)
-game_chars = re.compile("undertale|minecraft", re.IGNORECASE)
-
+import yaml
 
 class downloads:
+    config = {}
     scheduled = {}
     done = []
+
+with open("config.yaml", 'r') as stream:
+    try:
+        downloads.config = yaml.safe_load(stream)
+    except yaml.YAMLError as exc:
+        print("invalid config")
+        raise exc
 
 # Because stream is not a copy, but a pointer, there is no need to
 # implement rescheduling logic, simply syncing should do the trick
@@ -43,28 +48,22 @@ def schedule_download(stream, output, category):
 
 def finish_download(stream, output, category):
     # Handle streams once they're finished
-    shutil.move(output, "/mnt/array/hololive/{}/{}.mkv".format(category, stream["title"]))
+    shutil.move(output, "{}/{}/{}.mkv".format(downloads.config["locations"]["final"], category, stream["title"]))
     downloads.done.append(stream["youtube_url"])
     pass
 
 for day in hololive.streams.schedule["schedule"]:
     for stream in day["schedules"]:
         category = ""
-        if karaoke_chars.search(stream["title"]):
-            category = "karaoke"
-
-        elif asmr_chars.search(stream["title"]):
-            category = "asmr"
-
-        elif game_chars.search(stream["title"]):
-            category = "game"
-            
-        else:
+        for cat in downloads.config["categories"]:
+            for word in downloads.config["categories"][cat]:
+                if re.search(word, stream["title"], re.IGNORECASE):
+                    category = cat
+        if category == "":
             continue
-
         print("{} is a wanted {} stream. Planning to archive it!".format(stream["title"],category))
 
-        output = "/mnt/array/hololive/tmp/{}/{}.mkv".format(category, stream["youtube_url"].split("?v=")[1])
+        output = "{}/{}.mkv".format(downloads.config["locations"]["tmp"], stream["youtube_url"].split("?v=")[1])
         t = threading.Thread(target=schedule_download,args=(stream,output,category))
         t.start()
 
