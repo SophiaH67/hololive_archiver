@@ -6,6 +6,7 @@ import urllib.request
 import json
 import urllib
 import datetime
+import pytz
 
 class streams:
     schedule = {}
@@ -24,9 +25,14 @@ def sync():
             hour = int(time_arr[0])
             minute = int(time_arr[1])
 
+            current_time = datetime.datetime.utcnow()
+            year = current_time.year
+            if current_time.month == 1:
+                current_time.year += 1 # So stuff can be scheduled at the end of the year
+
             stream["datetime"] = datetime.datetime(
-                2020, month, day, hour, minute
-            )
+                year, month, day, hour, minute
+            ) - datetime.timedelta(hours=9) # JST is 9 hours ahead of UTC
 
             stream["title"] = get_youtube_title(stream["youtube_url"])
     streams.schedule = schedule
