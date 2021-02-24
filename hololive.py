@@ -5,6 +5,7 @@ import time
 import urllib.request
 import json
 import urllib
+import datetime
 
 class streams:
     schedule = {}
@@ -15,6 +16,18 @@ def sync():
     schedule = json.loads(res.text)
     for date in schedule['schedule']:
         for stream in date['schedules']:
+            day_arr = date["date"].split("/")
+            month = int(day_arr[0])
+            day = int(day_arr[1])
+
+            time_arr = stream["time"].split(":")
+            hour = int(time_arr[0])
+            minute = int(time_arr[1])
+
+            stream["datetime"] = datetime.datetime(
+                2020, month, day, hour, minute
+            )
+
             stream["title"] = get_youtube_title(stream["youtube_url"])
     streams.schedule = schedule
 
