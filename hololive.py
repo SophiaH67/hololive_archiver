@@ -19,9 +19,8 @@ def sync():
 
 def periodic_sync():
     while True:
-        """Sync every 1 minute, no rate limiting is needed,
-        but it makes it so that python isn't busy with a sync all the time"""
-        time.sleep(60)
+        """Sync every 10 minutes, this is so we don't trigger a youtube ratelimit"""
+        time.sleep(600)
         sync()
 
 # From https://stackoverflow.com/questions/59627108/retrieve-youtube-video-title-using-api-python
