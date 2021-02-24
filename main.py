@@ -33,10 +33,9 @@ def schedule_download(stream, output, category):
         stream_time = stream["datetime"]
         if stream_time > current_time:
             continue
-        cmd = ["streamlink", stream["youtube_url"], "best", "-o", output]
+        cmd = ["youtube-dl", stream["youtube_url"], "--merge-output-format", "mkv", "-o", output]
         print(cmd)
-        p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL,
-                        stderr=subprocess.STDOUT)
+        p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         p.communicate()
         if p.returncode != 0 or not pathlib.Path(output).exists():
             print(stream)
