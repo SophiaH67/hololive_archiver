@@ -16,6 +16,7 @@ def sync():
     for date in schedule['schedule']:
         for stream in date['schedules']:
             stream["title"] = get_youtube_title(stream["youtube_url"])
+    streams.schedule = schedule
 
 def periodic_sync():
     while True:
