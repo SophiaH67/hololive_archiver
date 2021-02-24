@@ -1,2 +1,2 @@
-# hololive_karaoke_archiver
+# hololive_archiver
 Automatically archives hololive karaoke streams
