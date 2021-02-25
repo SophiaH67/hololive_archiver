@@ -23,8 +23,8 @@ with open("config.yaml", 'r') as stream:
 
 # Because stream is not a copy, but a pointer, there is no need to
 # implement rescheduling logic, simply syncing should do the trick
-def schedule_download(stream, output, category):
-    if pathlib.Path(output).exists():
+def schedule_download(stream, output, final_output):
+    if pathlib.Path(final_output).exists():
         downloads.done.append(stream["youtube_url"])
         return
     while not stream["youtube_url"] in downloads.done:
@@ -41,13 +41,13 @@ def schedule_download(stream, output, category):
             print(stream)
             continue # Retry untill it works
 
-        return finish_download(stream, output, category)
+        return finish_download(stream, output, final_output)
 
     pass
 
-def finish_download(stream, output, category):
+def finish_download(stream, output, final_output):
     # Handle streams once they're finished
-    shutil.move(output, "{}/{}/{}.mkv".format(downloads.config["locations"]["final"], category, stream["title"]))
+    shutil.move(output, final_output)
     downloads.done.append(stream["youtube_url"])
     pass
 
@@ -63,7 +63,12 @@ for day in hololive.streams.schedule["schedule"]:
         print("{} is a wanted {} stream. Planning to archive it!".format(stream["title"],category))
 
         output = "{}/{}.mkv".format(downloads.config["locations"]["tmp"], stream["youtube_url"].split("?v=")[1])
-        t = threading.Thread(target=schedule_download,args=(stream,output,category))
+        final_output = "{}/{}/{}.mkv".format(
+            downloads.config["locations"]["final"],
+            category,
+            stream["title"].replace("/","") # To make sure it doesn't try to create a subdirectory
+        )
+        t = threading.Thread(target=schedule_download,args=(stream,output,final_output))
         t.start()
 
 try:
