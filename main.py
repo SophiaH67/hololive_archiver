@@ -11,7 +11,7 @@ import yaml
 
 class downloads:
     config = {}
-    scheduled = {}
+    scheduled = []
     done = []
 
 with open("config.yaml", 'r') as stream:
@@ -24,6 +24,7 @@ with open("config.yaml", 'r') as stream:
 # Because stream is not a copy, but a pointer, there is no need to
 # implement rescheduling logic, simply syncing should do the trick
 def schedule_download(stream, output, final_output):
+
     if pathlib.Path(final_output).exists():
         downloads.done.append(stream["youtube_url"])
         return
@@ -51,27 +52,37 @@ def finish_download(stream, output, final_output):
     downloads.done.append(stream["youtube_url"])
     pass
 
-for day in hololive.streams.schedule["schedule"]:
-    for stream in day["schedules"]:
-        category = ""
-        for cat in downloads.config["categories"]:
-            for word in downloads.config["categories"][cat]:
-                if re.search(word, stream["title"], re.IGNORECASE):
-                    category = cat
-        if category == "":
-            continue
-        print("{} is a wanted {} stream. Planning to archive it!".format(stream["title"],category))
+def update_scheduled_streams():
+    for day in hololive.streams.schedule["schedule"]:
+        for stream in day["schedules"]:
+            if stream["youtube_url"] in downloads.scheduled:
+                continue
 
-        output = "{}/{}.mkv".format(downloads.config["locations"]["tmp"], stream["youtube_url"].split("?v=")[1])
-        final_output = "{}/{}/{}.mkv".format(
-            downloads.config["locations"]["final"],
-            category,
-            stream["title"].replace("/","") # To make sure it doesn't try to create a subdirectory
-        )
-        t = threading.Thread(target=schedule_download,args=(stream,output,final_output))
-        t.start()
+            category = ""
+            for cat in downloads.config["categories"]:
+                for word in downloads.config["categories"][cat]:
+                    if re.search(word, stream["title"], re.IGNORECASE):
+                        category = cat
+            if category == "":
+                continue
+            
+            print("{} is a wanted {} stream. Planning to archive it!".format(stream["title"],category))
+
+            output = "{}/{}.mkv".format(downloads.config["locations"]["tmp"], stream["youtube_url"].split("?v=")[1])
+            final_output = "{}/{}/{}.mkv".format(
+                downloads.config["locations"]["final"],
+                category,
+                stream["title"].replace("/","") # To make sure it doesn't try to create a subdirectory
+            )
+            t = threading.Thread(target=schedule_download,args=(stream,output,final_output))
+            t.start()
+
+def periodic_updates():
+    while True:
+        update_scheduled_streams()
+        time.sleep(300)
 
 try:
-    input()
+    periodic_updates()
 except:
     sys.exit(0)
