@@ -48,6 +48,7 @@ def finish_download(stream, output, final_output):
     # Handle streams once they're finished
     shutil.move(output, final_output)
     downloads.done.append(stream["youtube_url"])
+    print("Succesfully archived {}".format(stream["title"]))
     pass
 
 def update_scheduled_streams():
