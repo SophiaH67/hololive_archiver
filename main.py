@@ -38,7 +38,7 @@ def schedule_download(stream, output, final_output):
         print(cmd)
         p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         p.communicate()
-        if p.returncode != 0 or not pathlib.Path(output).exists():
+        if p.returncode != 0:
             print(stream)
             continue # Retry untill it works
 
