@@ -36,7 +36,7 @@ def schedule_download(stream, output, final_output):
         p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         p.communicate()
         if p.returncode != 0:
-            print(stream)
+            print("Failed to archive {}. Retrying".format(stream["youtube_url"]))
             continue # Retry untill it works
 
         return finish_download(stream, output, final_output)
