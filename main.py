@@ -24,11 +24,6 @@ with open("config.yaml", 'r') as stream:
 # Because stream is not a copy, but a pointer, there is no need to
 # implement rescheduling logic, simply syncing should do the trick
 def schedule_download(stream, output, final_output):
-
-    if pathlib.Path(final_output).exists():
-        downloads.done.append(stream["youtube_url"])
-        return
-
     downloads.scheduled.append(stream["youtube_url"])
 
     while not stream["youtube_url"] in downloads.done:
@@ -69,14 +64,19 @@ def update_scheduled_streams():
             if category == "":
                 continue
             
-            print("{} is a wanted {} stream. Planning to archive it!".format(stream["title"],category))
-
             output = "{}/{}.mkv".format(downloads.config["locations"]["tmp"], stream["youtube_url"].split("?v=")[1])
             final_output = "{}/{}/{}.mkv".format(
                 downloads.config["locations"]["final"],
                 category,
                 stream["title"].replace("/","") # To make sure it doesn't try to create a subdirectory
             )
+
+            if pathlib.Path(final_output).exists():
+                # Stream is already downloaded
+                downloads.done.append(stream["youtube_url"])
+                continue
+            
+            print("{} is a wanted {} stream. Planning to archive it!".format(stream["title"],category))
             t = threading.Thread(target=schedule_download,args=(stream,output,final_output))
             t.start()
 
