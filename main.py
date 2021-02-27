@@ -28,6 +28,9 @@ def schedule_download(stream, output, final_output):
     if pathlib.Path(final_output).exists():
         downloads.done.append(stream["youtube_url"])
         return
+
+    downloads.scheduled.append(stream["youtube_url"])
+
     while not stream["youtube_url"] in downloads.done:
         time.sleep(10)
         current_time = datetime.datetime.utcnow()
@@ -55,7 +58,7 @@ def finish_download(stream, output, final_output):
 def update_scheduled_streams():
     for day in hololive.streams.schedule["schedule"]:
         for stream in day["schedules"]:
-            if stream["youtube_url"] in downloads.scheduled:
+            if stream["youtube_url"] in downloads.scheduled or stream["youtube_url"] in downloads.done:
                 continue
 
             category = ""
