@@ -1,0 +1,13 @@
+version: "3.4"
+services:
+    api:
+        image: marnixah/holo_schedule_api
+        network_mode: host
+        environment:
+            - FLASK_RUN_PORT=5000
+
+    archiver:
+        image: marnixah/hololive_archiver
+        volumes:
+            -  ./config.yaml:/app/config.yaml
+            -  /path/to/downloads/:/downloads/
