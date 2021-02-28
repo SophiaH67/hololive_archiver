@@ -33,6 +33,7 @@ def schedule_download(stream, output, final_output):
         stream_time = stream["datetime"]
         if stream_time > current_time:
             continue
+        print("Starting to archive {}".format(stream["title"]))
         cmd = ["youtube-dl", stream["youtube_url"], "--merge-output-format", "mkv", "-o", output]
         p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         p.communicate()
