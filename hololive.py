@@ -39,7 +39,7 @@ def sync():
 
 def periodic_sync():
     while True:
-        """Sync every 10 minutes, this is so we don't trigger a youtube ratelimit"""
+        # Sync every 10 minutes, this is so we don't trigger a youtube ratelimit
         time.sleep(600)
         sync()
 
