@@ -9,5 +9,5 @@ categories:
         - "undertale"
 
 locations:
-    tmp: /mnt/array/tmp/
-    final: /mnt/array/hololive/
+    tmp: /tmp/hololive/
+    final: /downloads/
