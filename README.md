@@ -12,6 +12,7 @@ docker run -d \
     --restart=unless-stopped \
     --network host \
     -v /path/to/downloads/:/downloads/ \
+    -v /path/to/config.yaml:/app/config.yaml/ \
     marnixah/hololive_archiver:latest
 ```
 
