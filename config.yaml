@@ -10,4 +10,4 @@ categories:
 
 locations:
     tmp: /tmp/hololive/
-    final: /downloads/
+    final: /downloads/ # A karaoke stream would go to /downloads/karaoke/stream title.mkv
