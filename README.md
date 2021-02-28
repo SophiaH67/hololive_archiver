@@ -7,7 +7,7 @@ To run the required API server, follow setup instructions on [this page](https:/
 
 To run the archiver, run
 ```bash
-docker run -d \
+docker run -it -d \
     --name "hololive_archiver" \
     --restart=unless-stopped \
     --network host \
