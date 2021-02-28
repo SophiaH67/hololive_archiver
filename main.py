@@ -8,6 +8,7 @@ import sys
 import pathlib
 import shutil
 import yaml
+import os
 
 class downloads:
     config = {}
@@ -76,6 +77,9 @@ def update_scheduled_streams():
                 downloads.done.append(stream["youtube_url"])
                 continue
             
+            os.makedirs(downloads.config["locations"]["tmp"], exist_ok=True)
+            os.makedirs(pathlib.Path(final_output).parents[0], exist_ok=True)
+
             print("{} is a wanted {} stream. Planning to archive it!".format(stream["title"],category))
             t = threading.Thread(target=schedule_download,args=(stream,output,final_output))
             t.start()
