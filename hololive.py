@@ -50,7 +50,15 @@ def get_youtube_title(youtube_url):
     query_string = urllib.parse.urlencode(params)
     url = url + "?" + query_string
 
-    with urllib.request.urlopen(url) as response:
+    req = urllib.request.Request(
+        url, 
+        data=None, 
+        headers={
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+        }
+    )
+
+    with urllib.request.urlopen(req) as response:
         response_text = response.read()
         data = json.loads(response_text.decode())
         return data['title']
