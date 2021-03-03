@@ -1,4 +1,4 @@
 requests
 pytz
-youtube-dl
+streamlink
 PyYAML
