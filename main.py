@@ -39,7 +39,8 @@ def schedule_download(stream, output, final_output):
         ydl_opts = {
             'outtmpl': output,
             'merge_output_format': 'mkv',
-            'ignoreerrors': True
+            'ignoreerrors': True,
+            'quiet': True
         }
 
         ydl = youtube_dl.YoutubeDL(ydl_opts)
