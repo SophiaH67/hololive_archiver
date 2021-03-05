@@ -9,6 +9,7 @@ import pathlib
 import shutil
 import yaml
 import os
+import youtube_dl
 
 class downloads:
     config = {}
@@ -34,10 +35,16 @@ def schedule_download(stream, output, final_output):
         if stream_time > current_time:
             continue
         print("Starting to archive {}".format(stream["title"]))
-        cmd = ["streamlink", stream["youtube_url"], "best", "-o", output]
-        p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        p.communicate()
-        if p.returncode != 0:
+
+        ydl_opts = {
+            'outtmpl': output,
+            'merge_output_format': 'mkv',
+            'ignoreerrors': True
+        }
+
+        ydl = youtube_dl.YoutubeDL(ydl_opts)
+        download = ydl.download([stream["youtube_url"]])
+        if int(download) != 0:
             print("Failed to archive {}. Retrying".format(stream["youtube_url"]))
             continue # Retry untill it works
 
