@@ -3,10 +3,14 @@ categories:
         - "🎵"
         - "karaoke"
         - "sing"
+        - "歌"
+        - "🎤"
     asmr:
         - "asmr"
-    game:
-        - "undertale"
+        - "ku100"
+    unarchived:
+        - "archive"
+        - "アーカイブなし"
 
 locations:
     tmp: /tmp/hololive/
