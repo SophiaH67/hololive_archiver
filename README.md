@@ -10,7 +10,7 @@ To run the archiver, run
 docker run -it -d \
     --name "hololive_archiver" \
     --restart=unless-stopped \
-    --network host \
+    --network bridge \
     -v /path/to/downloads/:/downloads/ \
     -v /path/to/config.yaml:/app/config.yaml/ \
     marnixah/hololive_archiver:latest
