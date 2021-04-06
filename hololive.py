@@ -7,13 +7,16 @@ import json
 import urllib
 import datetime
 import pytz
+import os
 
 class streams:
     schedule = {}
     sync_thread = None
 
+api_url = os.getenv('API_URL', 'https://hololive-api.marnixah.com/schedules')
+
 def sync():
-    res = requests.request("GET", "http://127.0.0.1:5000/schedules")
+    res = requests.request("GET", api_url)
     schedule = json.loads(res.text)
     for date in schedule['schedule']:
         for stream in date['schedules']:
