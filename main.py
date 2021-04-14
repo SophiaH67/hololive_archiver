@@ -118,5 +118,5 @@ def periodic_updates():
 
 try:
     periodic_updates()
-except:
+except KeyboardInterrupt:
     sys.exit(0)
