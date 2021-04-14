@@ -28,7 +28,8 @@ with open("config.yaml", 'r') as stream:
 def schedule_download(stream, output, final_output):
     downloads.scheduled.append(stream["youtube_url"])
 
-    while not stream["youtube_url"] in downloads.done:
+    stop = False
+    while not stream["youtube_url"] in downloads.done and not stop:
         time.sleep(10)
         current_time = datetime.datetime.utcnow()
         stream_time = stream["datetime"]
@@ -36,11 +37,28 @@ def schedule_download(stream, output, final_output):
             continue
         print("Starting to archive {}".format(stream["title"]))
 
+        class MyLogger(object):
+            def debug(self, msg):
+                pass
+
+            def warning(self, msg):
+                pass
+
+            def error(self, msg):
+                if "This live event will begin in" in msg:
+                    return
+
+                if "This video is available to this channel's members" in msg:
+                    print("{} is a members only stream, can't archive it".format(stream["title"]))
+                    stop = True
+                    return
+
         ydl_opts = {
             'outtmpl': output,
             'merge_output_format': 'mkv',
             'ignoreerrors': True,
-            'quiet': True
+            'quiet': True,
+            'logger': MyLogger(),
         }
 
         ydl = youtube_dl.YoutubeDL(ydl_opts)
