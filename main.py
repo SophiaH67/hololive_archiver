@@ -28,8 +28,7 @@ with open("config.yaml", 'r') as stream:
 def schedule_download(stream, output, final_output):
     downloads.scheduled.append(stream["youtube_url"])
 
-    stop = False
-    while not stream["youtube_url"] in downloads.done and not stop:
+    while not stream["youtube_url"] in downloads.done:
         time.sleep(10)
         current_time = datetime.datetime.utcnow()
         stream_time = stream["datetime"]
@@ -50,7 +49,7 @@ def schedule_download(stream, output, final_output):
 
                 if "This video is available to this channel's members" in msg:
                     print("{} is a members only stream, can't archive it".format(stream["title"]))
-                    stop = True
+                    downloads.done.append(stream["youtube_url"])
                     return
 
         ydl_opts = {
