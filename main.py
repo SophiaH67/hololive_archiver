@@ -63,7 +63,6 @@ def schedule_download(stream, output, final_output):
         ydl = youtube_dl.YoutubeDL(ydl_opts)
         download = ydl.download([stream["youtube_url"]])
         if int(download) != 0:
-            print("Failed to archive {}. Retrying".format(stream["youtube_url"]))
             continue # Retry untill it works
 
         return finish_download(stream, output, final_output)
