@@ -27,14 +27,16 @@ with open("config.yaml", 'r') as stream:
 # implement rescheduling logic, simply syncing should do the trick
 def schedule_download(stream, output, final_output):
     downloads.scheduled.append(stream["youtube_url"])
-
+    started = False
     while not stream["youtube_url"] in downloads.done:
         time.sleep(10)
         current_time = datetime.datetime.utcnow()
         stream_time = stream["datetime"]
         if stream_time > current_time:
             continue
-        print("Starting to archive {}".format(stream["title"]))
+        if not started:
+            print("Starting to archive {}".format(stream["title"]))
+            started = True
 
         class MyLogger(object):
             def debug(self, msg):
