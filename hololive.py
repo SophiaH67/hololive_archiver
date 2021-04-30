@@ -36,8 +36,6 @@ def sync():
             stream["datetime"] = datetime.datetime(
                 year, month, day, hour, minute
             ) - datetime.timedelta(hours=9) # JST is 9 hours ahead of UTC
-
-            stream["title"] = get_youtube_title(stream["youtube_url"])
     streams.schedule = schedule
 
 def periodic_sync():
@@ -51,26 +49,6 @@ def periodic_sync():
                 synced = True
             except:
                 pass
-
-# From https://stackoverflow.com/questions/59627108/retrieve-youtube-video-title-using-api-python
-def get_youtube_title(youtube_url):
-    params = {"format": "json", "url": youtube_url}
-    url = "https://www.youtube.com/oembed"
-    query_string = urllib.parse.urlencode(params)
-    url = url + "?" + query_string
-
-    req = urllib.request.Request(
-        url, 
-        data=None, 
-        headers={
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
-        }
-    )
-
-    with urllib.request.urlopen(req) as response:
-        response_text = response.read()
-        data = json.loads(response_text.decode())
-        return data['title']
 
 sync()
 streams.sync_thread = threading.Thread(target=periodic_sync, daemon=True)
