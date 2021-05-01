@@ -1,5 +1,5 @@
 import time
-import hololive
+from hololive import hololive
 import threading
 import datetime
 import subprocess
@@ -26,16 +26,16 @@ with open("config.yaml", 'r') as stream:
 # Because stream is not a copy, but a pointer, there is no need to
 # implement rescheduling logic, simply syncing should do the trick
 def schedule_download(stream, output, final_output):
-    downloads.scheduled.append(stream["youtube_url"])
+    downloads.scheduled.append(stream.url)
     started = False
-    while not stream["youtube_url"] in downloads.done:
+    while not stream.url in downloads.done:
         time.sleep(10)
         current_time = datetime.datetime.utcnow()
-        stream_time = stream["datetime"]
+        stream_time = stream.starttime
         if stream_time > current_time:
             continue
         if not started:
-            print("Starting to archive {}".format(stream["title"]))
+            print("Starting to archive {}".format(stream.title_jp))
             started = True
 
         class MyLogger(object):
@@ -50,8 +50,8 @@ def schedule_download(stream, output, final_output):
                     return
 
                 if "This video is available to this channel's members" in msg:
-                    print("{} is a members only stream, can't archive it".format(stream["title"]))
-                    downloads.done.append(stream["youtube_url"])
+                    print("{} is a members only stream, can't archive it".format(stream.title_jp))
+                    downloads.done.append(stream.url)
                     return
 
         ydl_opts = {
@@ -63,7 +63,7 @@ def schedule_download(stream, output, final_output):
         }
 
         ydl = youtube_dl.YoutubeDL(ydl_opts)
-        download = ydl.download([stream["youtube_url"]])
+        download = ydl.download([stream.url])
         if int(download) != 0:
             continue # Retry untill it works
 
@@ -74,42 +74,42 @@ def schedule_download(stream, output, final_output):
 def finish_download(stream, output, final_output):
     # Handle streams once they're finished
     shutil.move(output, final_output)
-    downloads.done.append(stream["youtube_url"])
-    print("Succesfully archived {}".format(stream["title"]))
+    downloads.done.append(stream.url)
+    print("Succesfully archived {}".format(stream.title_jp))
     pass
 
 def update_scheduled_streams():
-    for day in hololive.streams.schedule["schedule"]:
-        for stream in day["schedules"]:
-            if stream["youtube_url"] in downloads.scheduled or stream["youtube_url"] in downloads.done:
-                continue
+    streams = hololive.get_streams()
+    for stream in streams:
+        if stream.url in downloads.scheduled or stream.url in downloads.done:
+            continue
 
-            category = ""
-            for cat in downloads.config["categories"]:
-                for word in downloads.config["categories"][cat]:
-                    if re.search(word, stream["title"], re.IGNORECASE):
-                        category = cat
-            if category == "":
-                continue
-            
-            output = "{}/{}.mkv".format(downloads.config["locations"]["tmp"], stream["youtube_url"].split("?v=")[1])
-            final_output = "{}/{}/{}.mkv".format(
-                downloads.config["locations"]["final"],
-                category,
-                stream["title"].replace("/","") # To make sure it doesn't try to create a subdirectory
-            )
+        category = ""
+        for cat in downloads.config["categories"]:
+            for word in downloads.config["categories"][cat]:
+                if re.search(word, stream.title_jp, re.IGNORECASE):
+                    category = cat
+        if category == "":
+            continue
+        
+        output = "{}/{}.mkv".format(downloads.config["locations"]["tmp"], stream.url.split("?v=")[1])
+        final_output = "{}/{}/{}.mkv".format(
+            downloads.config["locations"]["final"],
+            category,
+            stream.title_jp.replace("/","") # To make sure it doesn't try to create a subdirectory
+        )
 
-            if pathlib.Path(final_output).exists():
-                # Stream is already downloaded
-                downloads.done.append(stream["youtube_url"])
-                continue
-            
-            os.makedirs(downloads.config["locations"]["tmp"], exist_ok=True)
-            os.makedirs(pathlib.Path(final_output).parents[0], exist_ok=True)
+        if pathlib.Path(final_output).exists():
+            # Stream is already downloaded
+            downloads.done.append(stream.url)
+            continue
+        
+        os.makedirs(downloads.config["locations"]["tmp"], exist_ok=True)
+        os.makedirs(pathlib.Path(final_output).parents[0], exist_ok=True)
 
-            print("{} is a wanted {} stream. Planning to archive it!".format(stream["title"],category))
-            t = threading.Thread(target=schedule_download,args=(stream,output,final_output))
-            t.start()
+        print("{} is a wanted {} stream. Planning to archive it!".format(stream.title_jp, category))
+        t = threading.Thread(target=schedule_download,args=(stream,output,final_output))
+        t.start()
 
 def periodic_updates():
     while True:
