@@ -80,7 +80,10 @@ async def finish_download(stream, output, final_output):
     pass
 
 async def update_scheduled_streams():
-    streams = await hololive.get_streams()
+    try:
+        streams = await hololive.get_streams()
+    except:
+        return
     for stream in streams:
         if stream.url in downloads.scheduled or stream.url in downloads.done:
             continue
