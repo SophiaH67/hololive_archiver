@@ -1,5 +1,4 @@
 requests
-pytz
 youtube-dl
 PyYAML
 hololive
