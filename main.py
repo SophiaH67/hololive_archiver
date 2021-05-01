@@ -2,7 +2,6 @@ import time
 from hololive import hololive
 import threading
 import datetime
-import subprocess
 import asyncio
 import re
 import sys
