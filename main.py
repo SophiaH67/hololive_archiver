@@ -3,6 +3,7 @@ from hololive import hololive
 import threading
 import datetime
 import subprocess
+import asyncio
 import re
 import sys
 import pathlib
@@ -67,19 +68,19 @@ def schedule_download(stream, output, final_output):
         if int(download) != 0:
             continue # Retry untill it works
 
-        return finish_download(stream, output, final_output)
+        return asyncio.run(finish_download(stream, output, final_output))
 
     pass
 
-def finish_download(stream, output, final_output):
+async def finish_download(stream, output, final_output):
     # Handle streams once they're finished
     shutil.move(output, final_output)
     downloads.done.append(stream.url)
     print("Succesfully archived {}".format(stream.title_jp))
     pass
 
-def update_scheduled_streams():
-    streams = hololive.get_streams()
+async def update_scheduled_streams():
+    streams = await hololive.get_streams()
     for stream in streams:
         if stream.url in downloads.scheduled or stream.url in downloads.done:
             continue
@@ -111,12 +112,12 @@ def update_scheduled_streams():
         t = threading.Thread(target=schedule_download,args=(stream,output,final_output))
         t.start()
 
-def periodic_updates():
+async def periodic_updates():
     while True:
-        update_scheduled_streams()
-        time.sleep(300)
+        await update_scheduled_streams()
+        await asyncio.sleep(300)
 
 try:
-    periodic_updates()
+    asyncio.run(periodic_updates())
 except KeyboardInterrupt:
     sys.exit(0)
