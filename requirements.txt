@@ -3,3 +3,4 @@ pytz
 youtube-dl
 PyYAML
 hololive
+asyncio
