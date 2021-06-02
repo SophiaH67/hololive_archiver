@@ -2,3 +2,4 @@ youtube-dl==2021.4.26
 PyYAML==5.4.1
 hololive==0.0.18
 asyncio==3.4.3
+ffmpeg-python==0.2.0
