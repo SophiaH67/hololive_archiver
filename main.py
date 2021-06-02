@@ -10,6 +10,7 @@ import shutil
 import yaml
 import os
 import youtube_dl
+from documentation import generate_documentation
 
 class downloads:
     config = {}
@@ -73,6 +74,8 @@ def schedule_download(stream, output, final_folder, final_name):
 
 async def finish_download(stream, output, final_folder, final_name):
     # Handle streams once they're finished
+    with open(f"{final_folder}/about.md",'w') as docfile:
+        docfile.write(generate_documentation(output))
     shutil.move(output, f"{final_folder}/{final_name}")
     downloads.done.append(stream.url)
     print("Succesfully archived {}".format(stream.title_jp))
