@@ -25,7 +25,7 @@ with open("config.yaml", 'r') as stream:
 
 # Because stream is not a copy, but a pointer, there is no need to
 # implement rescheduling logic, simply syncing should do the trick
-def schedule_download(stream, output, final_output):
+def schedule_download(stream, output, final_folder, final_name):
     downloads.scheduled.append(stream.url)
     started = False
     while not stream.url in downloads.done:
@@ -67,19 +67,20 @@ def schedule_download(stream, output, final_output):
         if int(download) != 0:
             continue # Retry untill it works
 
-        return asyncio.run(finish_download(stream, output, final_output))
+        return asyncio.run(finish_download(stream, output, final_folder, final_name))
 
     pass
 
-async def finish_download(stream, output, final_output):
+async def finish_download(stream, output, final_folder, final_name):
     # Handle streams once they're finished
-    shutil.move(output, final_output)
+    shutil.move(output, f"{final_folder}/{final_name}")
     downloads.done.append(stream.url)
     print("Succesfully archived {}".format(stream.title_jp))
     pass
 
 async def update_scheduled_streams():
     streams = await hololive.get_streams()
+    print(streams)
     for stream in streams:
         if stream.url in downloads.scheduled or stream.url in downloads.done:
             continue
@@ -93,11 +94,9 @@ async def update_scheduled_streams():
             continue
         
         output = "{}/{}.mkv".format(downloads.config["locations"]["tmp"], stream.url.split("?v=")[1])
-        final_output = "{}/{}/{}.mkv".format(
-            downloads.config["locations"]["final"],
-            category,
-            stream.title_jp.replace("/","") # To make sure it doesn't try to create a subdirectory
-        )
+        final_folder = f"{downloads.config['locations']['final']}/{category}/{stream.title_jp.replace('/','')}"
+        final_name = f"{stream.title_jp.replace('/','')}.mkv"
+        final_output = f"{final_folder}/{final_name}"
 
         if pathlib.Path(final_output).exists():
             # Stream is already downloaded
@@ -105,10 +104,10 @@ async def update_scheduled_streams():
             continue
         
         os.makedirs(downloads.config["locations"]["tmp"], exist_ok=True)
-        os.makedirs(pathlib.Path(final_output).parents[0], exist_ok=True)
+        os.makedirs(final_folder, exist_ok=True)
 
         print("{} is a wanted {} stream. Planning to archive it!".format(stream.title_jp, category))
-        t = threading.Thread(target=schedule_download,args=(stream,output,final_output))
+        t = threading.Thread(target=schedule_download,args=(stream,output,final_folder,final_name))
         t.start()
 
 async def periodic_updates():
