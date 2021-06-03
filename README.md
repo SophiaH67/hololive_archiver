@@ -3,7 +3,6 @@ Automatically archives hololive karaoke streams
 
 ## Setup (docker)
 ### Docker run (recommended)
-If you really want to, you can run the API server yourself by [following these instructions](https://github.com/marnixah/holo_schedule_api_docker). Then when running, set the API_URL environment variable to ``your ip:port/schedules``
 
 To run the archiver, run
 ```bash
@@ -27,8 +26,6 @@ docker-compose up -d
 ```
 ## Setup (ubuntu)
 !! THIS IS UNSUPPORTED !!
-
-If you really want to, you can run the API server yourself by [following these instructions](https://github.com/cst0601/holo_schedule_api). Then when running, set the API_URL environment variable to ``your ip:port/schedules``
 
 To run the archiver, run the following
 ```bash
