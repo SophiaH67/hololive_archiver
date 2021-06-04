@@ -1,3 +1,4 @@
+from os import makedirs
 from yaml import safe_load, YAMLError
 with open("config.yaml", 'r') as stream:
   try:
@@ -12,6 +13,8 @@ locations = {
   "tmp": tmp_config['locations']['tmp'],
   "final": tmp_config['locations']['final']
 }
+
+makedirs(locations["tmp"], exist_ok=True)
 
 streams = []
 

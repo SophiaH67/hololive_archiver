@@ -31,8 +31,6 @@ class Stream(object):
     self.final_folder = f"{(locations['final'] or output_override)}/{self.safe_title}"
     self.final_output = f"{self.final_folder}/{self.safe_title}.mkv"
     self.tmp_output = f"{locations['tmp']}/{self.youtube_id}.mkv"
-    makedirs(locations["tmp"], exist_ok=True)
-    makedirs(self.final_folder, exist_ok=True)
     self.ignore = "DOWNLOADED" if Path(self.final_output) else (False if download else ("CATEGORY" if automatic else "USER"))
     self.run()
 
@@ -72,6 +70,7 @@ class Stream(object):
       await self._attempt_download()
 
   async def _finish_download(self):
+    makedirs(self.final_folder, exist_ok=True)
     move(self.tmp_output, self.final_output)
     with open(f"{self.final_folder}/about.md", 'w') as docfile:
       docfile.write(generate_documentation(self.final_output))
