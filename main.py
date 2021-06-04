@@ -11,18 +11,11 @@ import yaml
 import os
 import youtube_dl
 from documentation import generate_documentation
+from config import locations, categories
 
 class downloads:
-    config = {}
     scheduled = []
     done = []
-
-with open("config.yaml", 'r') as stream:
-    try:
-        downloads.config = yaml.safe_load(stream)
-    except yaml.YAMLError as exc:
-        print("invalid config")
-        raise exc
 
 # Because stream is not a copy, but a pointer, there is no need to
 # implement rescheduling logic, simply syncing should do the trick
@@ -88,15 +81,15 @@ async def update_scheduled_streams():
             continue
 
         category = ""
-        for cat in downloads.config["categories"]:
-            for word in downloads.config["categories"][cat]:
+        for cat in categories:
+            for word in categories[cat]:
                 if re.search(word, stream.title_jp, re.IGNORECASE):
                     category = cat
         if category == "":
             continue
         
-        output = "{}/{}.mkv".format(downloads.config["locations"]["tmp"], stream.url.split("?v=")[1])
-        final_folder = f"{downloads.config['locations']['final']}/{category}/{stream.title_jp.replace('/','')}"
+        output = "{}/{}.mkv".format(locations["tmp"], stream.url.split("?v=")[1])
+        final_folder = f"{locations['final']}/{category}/{stream.title_jp.replace('/','')}"
         final_name = f"{stream.title_jp.replace('/','')}.mkv"
         final_output = f"{final_folder}/{final_name}"
 
@@ -105,7 +98,7 @@ async def update_scheduled_streams():
             downloads.done.append(stream.url)
             continue
         
-        os.makedirs(downloads.config["locations"]["tmp"], exist_ok=True)
+        os.makedirs(locations["tmp"], exist_ok=True)
         os.makedirs(final_folder, exist_ok=True)
 
         print("{} is a wanted {} stream. Planning to archive it!".format(stream.title_jp, category))
