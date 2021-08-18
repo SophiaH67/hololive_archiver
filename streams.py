@@ -5,7 +5,7 @@ from asyncio import sleep
 from os import makedirs
 from config import locations, add_stream, streams
 from pathlib import Path
-from youtube_dl import YoutubeDL
+from subprocess import Popen, DEVNULL
 from shutil import move
 from documentation import generate_documentation
 from asyncio import run
@@ -28,9 +28,9 @@ class Stream(object):
     self.youtube_id = youtube_id
     self.start_datetime = start_datetime
     self.youtube_url = f"https://youtube.com/watch?v={youtube_id}"
-    self.final_folder = f"{(locations['final'] or output_override)}/{self.safe_title}"
-    self.final_output = f"{self.final_folder}/{self.safe_title}.mkv"
-    self.tmp_output = f"{locations['tmp']}/{self.youtube_id}.mkv"
+    self.final_folder = f"{(output_override or locations['final'])}/{self.safe_title}"
+    self.final_output = f"{self.final_folder}/{self.safe_title}"
+    self.tmp_output = f"{locations['tmp']}/{self.youtube_id}"
     self.ignore = "DOWNLOADED" if Path(self.final_output).exists() else (False if download else ("CATEGORY" if automatic else "USER"))
     self.run()
 
@@ -41,26 +41,19 @@ class Stream(object):
     self.thread.start()
   async def _attempt_download(self):
     print(f"[DOWNLOADER] Attempting to download {self.title} to {self.final_output}")
-    class ytdl_logger(object):
-      def __init__(self, target: Stream): self.target = target
-      def debug(self, msg): pass
-      def warning(self, msg): pass
-      def error(self, msg):
-        if "This live event will begin in" in msg:
-          return
-        if "This video is available to this channel's members" in msg:
-          self.target.ignore = "MEMBERS_ONLY"
-          return
-    ydl_opts = {
-      'outtmpl': self.tmp_output,
-      'merge_output_format': 'mkv',
-      'ignoreerrors': True,
-      'quiet': True,
-      'logger': ytdl_logger(self),
-    }
-    ydl = YoutubeDL(ydl_opts)
-    download = ydl.download([self.youtube_url])
-    if int(download) != 0: return
+    download_process = Popen([
+      "yt-dlp",
+      "--write-info-json",
+      "--keep-video",
+      "--remux-video", "mkv",
+      "--write-thumbnail",
+      "--sub-langs", "all",
+      "--sub-format", "srv3/json",
+      "--write-subs",
+      "-o", self.tmp_output + ".%(ext)s",
+      self.youtube_url], stdout=DEVNULL)
+    download_process.wait()
+    if int(download_process.returncode) != 0: return
     await self._finish_download()
 
   async def _scheduler(self):
@@ -71,9 +64,12 @@ class Stream(object):
 
   async def _finish_download(self):
     makedirs(self.final_folder, exist_ok=True)
-    move(self.tmp_output, self.final_output)
+    move(self.tmp_output + ".mkv", self.final_output + ".mkv")
+    move(self.tmp_output + ".info.json", self.final_output + ".info.json")
+    move(self.tmp_output + ".live_chat.json", self.final_output + ".live_chat.json")
+    move(self.tmp_output + ".webp", self.final_folder + "/cover.webp")
     with open(f"{self.final_folder}/about.md", 'w') as docfile:
-      docfile.write(generate_documentation(self.final_output))
+      docfile.write(generate_documentation(self.final_output + '.mkv'))
     print(f"[DOWNLOADER] Succesfully archived {self.title}")
     self.ignore = "DOWNLOADED"
 

@@ -1,4 +1,4 @@
-youtube-dl==2021.4.26
+yt-dlp==2021.8.10
 PyYAML==5.4.1
 hololive==0.0.18
 asyncio==3.4.3

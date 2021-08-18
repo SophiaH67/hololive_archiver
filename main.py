@@ -3,7 +3,7 @@ from streams import Stream
 import asyncio
 import re
 import sys
-from config import add_stream, categories
+from config import add_stream, categories, locations
 
 async def update_scheduled_streams():
     streams = await hololive.get_streams()
@@ -20,7 +20,7 @@ async def update_scheduled_streams():
             finally:
                 continue
         try:
-            add_stream(Stream(stream.title_jp, video_id, stream.starttime, True, True))
+            add_stream(Stream(stream.title_jp, video_id, stream.starttime, True, True, output_override=f"{locations['final']}/{category}/"))
         except:
             continue
         print("[AUTOSCHEDULER] {} is a wanted {} stream. Planning to archive it!".format(stream.title_jp, category))
