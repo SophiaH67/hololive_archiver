@@ -8,7 +8,6 @@ from config import add_stream, topics, locations
 async def update_scheduled_streams():
     for topic in topics:
         streams = await hololive.get_live(topic=topic, limit=50)
-        print(len(streams))
         for stream in streams:
             try:
                 add_stream(Stream(stream.title, stream.id, stream.available_at, True, True, output_override=f"{locations['final']}/{topic}/"))
