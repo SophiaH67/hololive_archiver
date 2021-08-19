@@ -5,7 +5,7 @@ from asyncio import sleep
 from os import makedirs
 from config import locations, add_stream, streams
 from pathlib import Path
-from subprocess import Popen, DEVNULL
+from subprocess import Popen, DEVNULL, PIPE
 from shutil import move
 from documentation import generate_documentation
 from asyncio import run
