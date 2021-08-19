@@ -1,29 +1,20 @@
 from hololive import hololive
-from streams import Stream
+from streams import Stream, StreamAlreadyExists
 import asyncio
 import re
 import sys
-from config import add_stream, categories, locations
+from config import add_stream, topics, locations
 
 async def update_scheduled_streams():
-    streams = await hololive.get_streams()
-    for stream in streams:
-        category = ""
-        video_id = stream.url.split('?v=')[1]
-        for cat in categories:
-            for word in categories[cat]:
-                if re.search(word, stream.title_jp, re.IGNORECASE):
-                    category = cat
-        if category == "":
+    for topic in topics:
+        streams = await hololive.get_live(topic=topic, limit=50)
+        print(len(streams))
+        for stream in streams:
             try:
-                add_stream(Stream(stream.title_jp, video_id, stream.starttime, True, False))
-            finally:
+                add_stream(Stream(stream.title, stream.id, stream.available_at, True, True, output_override=f"{locations['final']}/{topic}/"))
+            except StreamAlreadyExists:
                 continue
-        try:
-            add_stream(Stream(stream.title_jp, video_id, stream.starttime, True, True, output_override=f"{locations['final']}/{category}/"))
-        except:
-            continue
-        print("[AUTOSCHEDULER] {} is a wanted {} stream. Planning to archive it!".format(stream.title_jp, category))
+            print("[AUTOSCHEDULER] {} is a wanted {} stream. Planning to archive it!".format(stream.title, topic))
 
 async def periodic_updates():
     while True:

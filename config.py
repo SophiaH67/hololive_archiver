@@ -7,7 +7,7 @@ with open("config.yaml", 'r') as stream:
     print("invalid config")
     raise exc
 
-categories = tmp_config['categories']
+topics = tmp_config['topics']
 
 locations = {
   "tmp": tmp_config['locations']['tmp'],

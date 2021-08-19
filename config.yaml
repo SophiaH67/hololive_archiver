@@ -1,17 +1,8 @@
-categories:
-    karaoke:
-        - "🎵"
-        - "karaoke"
-        - "sing"
-        - "歌"
-        - "🎤"
-    asmr:
-        - "asmr"
-        - "ku100"
-    unarchived:
-        - "archive"
-        - "アーカイブなし"
+topics: # You can see topic id's on https://docs.google.com/spreadsheets/d/1molZTK_krbT28ksljthRFiUDDiGP8TsXVh4j7m2Q3S4/edit#gid=1285117812
+    - "apex"
+    - "asmr"
+    - "singing"
 
 locations:
     tmp: /tmp/hololive/
-    final: /downloads/ # A karaoke stream would go to /downloads/karaoke/stream title.mkv
+    final: /downloads/ # A karaoke stream would go to /downloads/karaoke/stream title/stream title.mkv
