@@ -10,6 +10,9 @@ from shutil import move
 from documentation import generate_documentation
 from asyncio import run
 
+class StreamAlreadyExists(Exception):
+  pass
+
 class Stream(object):
   def __new__(cls, title: str, youtube_id: str, start_datetime: datetime, automatic: bool, download: bool, output_override: str=""):
     for existing_stream in streams:
@@ -19,7 +22,7 @@ class Stream(object):
         existing_stream.automatic = automatic
         existing_stream.download = download
         existing_stream.run()
-        raise Exception("Stream already exists")
+        raise StreamAlreadyExists
     return super(Stream, cls).__new__(cls)
   def __init__(self, title: str, youtube_id: str, start_datetime: datetime, automatic: bool, download: bool, output_override: str=""):
     
