@@ -51,8 +51,14 @@ class Stream(object):
       "--sub-format", "srv3/json",
       "--write-subs",
       "-o", self.tmp_output + ".%(ext)s",
-      self.youtube_url], stdout=DEVNULL)
+      self.youtube_url], stdout=DEVNULL, stderr=PIPE)
     download_process.wait()
+    stderr=download_process.stderr.read().decode('utf-8')
+    if "This live event will begin in" in stderr:
+      return
+    elif "This video is available to this channel's members" in stderr:
+      self.ignore = "MEMBERS_ONLY"
+      return
     if int(download_process.returncode) != 0: return
     await self._finish_download()
 
