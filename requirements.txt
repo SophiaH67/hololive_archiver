@@ -1,5 +1,5 @@
 yt-dlp==2021.8.10
 PyYAML==5.4.1
-hololive==0.1.2
+hololive==0.1.3
 asyncio==3.4.3
 ffmpeg-python==0.2.0
