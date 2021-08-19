@@ -65,7 +65,7 @@ class Stream(object):
   async def _scheduler(self):
     while not self.ignore:
       await sleep(10)
-      if self.start_datetime > datetime.utcnow(): continue
+      if self.start_datetime.replace(tzinfo=None) > datetime.utcnow().replace(tzinfo=None): continue
       await self._attempt_download()
 
   async def _finish_download(self):
