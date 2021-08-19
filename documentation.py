@@ -1,8 +1,16 @@
-from ffmpeg import probe
+from ffmpeg import probe, Error
 from pathlib import Path
 
 def generate_documentation(filepath: str):
-  input_video = probe(filepath)
+  try:
+    input_video = probe(filepath)
+  except Error as err:
+    print(10*'-')
+    print("ffprobe exception!")
+    print(err.stderr)
+    print(err.stdout)
+    print(10*'-')
+    return ""
   documentation_array = []
   documentation_array.append(f"# {Path(filepath).stem}")
   documentation_array.append(f"## Streams")
