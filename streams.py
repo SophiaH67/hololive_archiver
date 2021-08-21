@@ -42,6 +42,7 @@ class Stream(object):
     self.final_output = f"{self.final_folder}/{self.safe_title}"
     self.tmp_output = f"{locations['tmp']}/{self.youtube_id}"
     self.ignore = "DOWNLOADED" if Path(self.final_output+'.mkv').exists() else (False if download else ("CATEGORY" if automatic else "USER"))
+    if self.ignore == "DOWNLOADED": print(f"[DOWNLOADER] Ignoring request to download {self.title}(youtube.com/watch?v={self.youtube_id}) since it is already downloaded")
     self.run()
 
   def run(self):
