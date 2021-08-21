@@ -14,6 +14,12 @@ from time import mktime
 class StreamAlreadyExists(Exception):
   pass
 
+def safe_move_file(orig:str, dest:str):
+  try:
+    return move(orig, dest)
+  except FileNotFoundError:
+    return print(f"[DOWNLOADER] Couldn't find {orig}")
+
 class Stream(object):
   def __new__(cls, title: str, youtube_id: str, start_datetime: datetime, automatic: bool, download: bool, output_override: str=""):
     for existing_stream in streams:
@@ -76,10 +82,10 @@ class Stream(object):
 
   async def _finish_download(self):
     makedirs(self.final_folder, exist_ok=True)
-    move(self.tmp_output + ".mkv", self.final_output + ".mkv")
-    move(self.tmp_output + ".info.json", self.final_output + ".info.json")
-    move(self.tmp_output + ".live_chat.json", self.final_output + ".live_chat.json")
-    move(self.tmp_output + ".webp", self.final_folder + "/cover.webp")
+    safe_move_file(self.tmp_output + ".mkv", self.final_output + ".mkv")
+    safe_move_file(self.tmp_output + ".info.json", self.final_output + ".info.json")
+    safe_move_file(self.tmp_output + ".live_chat.json", self.final_output + ".live_chat.json")
+    safe_move_file(self.tmp_output + ".webp", self.final_folder + "/cover.webp")
     with open(f"{self.final_folder}/about.md", 'w') as docfile:
       docfile.write(generate_documentation(self.final_output + '.mkv'))
     print(f"[DOWNLOADER] Succesfully archived {self.title}")
