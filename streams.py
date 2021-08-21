@@ -89,6 +89,7 @@ class Stream(object):
       attempt+=1
       print(f"Failed to download chat, retrying. Attempt #{attempt}")
       chat_download_process = await self._attempt_chat_download()
+      chat_download_process.wait()
       await sleep(10)
       if attempt > 4:
         print("Chat download attempt #{attempt} failed. Abandoning")
