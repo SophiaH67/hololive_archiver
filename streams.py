@@ -9,6 +9,7 @@ from subprocess import Popen, DEVNULL, PIPE
 from shutil import move
 from documentation import generate_documentation
 from asyncio import run
+from time import mktime
 
 class StreamAlreadyExists(Exception):
   pass
@@ -68,7 +69,9 @@ class Stream(object):
   async def _scheduler(self):
     while not self.ignore:
       await sleep(10)
-      if self.start_datetime.replace(tzinfo=None) > datetime.utcnow().replace(tzinfo=None): continue
+      t1 = mktime(datetime.utcnow().replace(tzinfo=None).timetuple())
+      t2 = mktime(self.start_datetime.replace(tzinfo=None).timetuple())
+      if t2 > t1: continue
       await self._attempt_download()
 
   async def _finish_download(self):
