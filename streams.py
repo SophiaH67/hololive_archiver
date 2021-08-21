@@ -110,7 +110,6 @@ class Stream(object):
     safe_move_file(self.tmp_output + ".webp", self.final_folder + "/cover.webp")
 
     for file in Path(self.tmp_output).parent.absolute().glob(f"{self.youtube_id}*webm"):
-      print(file)
       file.unlink()
 
     with open(f"{self.final_folder}/about.md", 'w') as docfile:
