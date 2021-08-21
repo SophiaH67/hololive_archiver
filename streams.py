@@ -3,6 +3,7 @@ from datetime import datetime
 from threading import Thread
 from asyncio import sleep
 from os import makedirs
+from pathlib import Path
 from config import locations, add_stream, streams
 from pathlib import Path
 from subprocess import Popen, DEVNULL, PIPE
@@ -86,6 +87,11 @@ class Stream(object):
     safe_move_file(self.tmp_output + ".info.json", self.final_output + ".info.json")
     safe_move_file(self.tmp_output + ".live_chat.json", self.final_output + ".live_chat.json")
     safe_move_file(self.tmp_output + ".webp", self.final_folder + "/cover.webp")
+
+    for file in Path(self.tmp_output).parent.absolute().glob(f"{self.youtube_id}*webm"):
+      print(file)
+      file.unlink()
+
     with open(f"{self.final_folder}/about.md", 'w') as docfile:
       docfile.write(generate_documentation(self.final_output + '.mkv'))
     print(f"[DOWNLOADER] Succesfully archived {self.title}")
