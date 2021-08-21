@@ -93,6 +93,7 @@ class Stream(object):
       await sleep(10)
       if attempt > 4:
         print("Chat download attempt #{attempt} failed. Abandoning")
+        break
     await self._finish_download()
 
   async def _scheduler(self):
