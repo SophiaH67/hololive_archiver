@@ -3,7 +3,6 @@ from datetime import datetime
 from threading import Thread
 from asyncio import sleep
 from os import makedirs
-from pathlib import Path
 from config import locations, add_stream, streams
 from pathlib import Path
 from subprocess import Popen, DEVNULL, PIPE
