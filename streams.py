@@ -9,7 +9,7 @@ from pathlib import Path
 from subprocess import Popen, DEVNULL, PIPE
 from shutil import move
 from documentation import generate_documentation
-from asyncio import run
+from asyncio import run, sleep
 from time import mktime
 
 class StreamAlreadyExists(Exception):
@@ -50,27 +50,48 @@ class Stream(object):
     self.thread = Thread(target=run, args=(self._scheduler(),))
     self.thread.daemon = True
     self.thread.start()
-  async def _attempt_download(self):
-    print(f"[DOWNLOADER] Attempting to download {self.title} to {self.final_output}")
-    download_process = Popen([
+  async def _attempt_chat_download(self):
+    return Popen([
       "yt-dlp",
       "--write-info-json",
-      "--keep-video",
-      "--remux-video", "mkv",
-      "--write-thumbnail",
       "--sub-langs", "all",
       "--sub-format", "srv3/json",
+      "--skip-download",
       "--write-subs",
       "-o", self.tmp_output + ".%(ext)s",
       self.youtube_url], stdout=DEVNULL, stderr=PIPE)
-    download_process.wait()
-    stderr=download_process.stderr.read().decode('utf-8')
+  async def _attempt_stream_download(self):
+    return Popen([
+      "yt-dlp",
+      "--keep-video",
+      "--remux-video", "mkv",
+      "--write-thumbnail",
+      "--write-subs",
+      "-o", self.tmp_output + ".%(ext)s",
+      self.youtube_url], stdout=DEVNULL, stderr=PIPE)
+
+  async def _attempt_download(self):
+    print(f"[DOWNLOADER] Attempting to download {self.title} to {self.final_output}")
+    chat_download_process = await self._attempt_chat_download()
+    stream_download_process = await self._attempt_stream_download()
+
+    chat_download_process.wait()
+    stream_download_process.wait()
+
+    stderr=stream_download_process.stderr.read().decode('utf-8')
     if "This live event will begin in" in stderr:
       return
     elif "This video is available to this channel's members" in stderr:
       self.ignore = "MEMBERS_ONLY"
       return
-    if int(download_process.returncode) != 0: return
+    attempt=0
+    while int(chat_download_process.returncode) != 0:
+      attempt+=1
+      print(f"Failed to download chat, retrying. Attempt #{attempt}")
+      chat_download_process = await self._attempt_chat_download()
+      await sleep(10)
+      if attempt > 4:
+        print("Chat download attempt #{attempt} failed. Abandoning")
     await self._finish_download()
 
   async def _scheduler(self):
