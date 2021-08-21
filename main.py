@@ -13,7 +13,7 @@ async def update_scheduled_streams():
                 add_stream(Stream(stream.title, stream.id, stream.available_at, True, True, output_override=f"{locations['final']}/{topic}/"))
             except StreamAlreadyExists:
                 continue
-            print("[AUTOSCHEDULER] {} is a wanted {} stream. Planning to archive it!".format(stream.title, topic))
+            print("[AUTOSCHEDULER] {}(youtube.com/watch?v={}) is a wanted {} stream. Planning to archive it!".format(stream.title, stream.id, topic))
 
 async def periodic_updates():
     while True:
