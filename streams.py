@@ -84,6 +84,8 @@ class Stream(object):
     elif "This video is available to this channel's members" in stderr:
       self.ignore = "MEMBERS_ONLY"
       return
+    if stream_download_process.returncode != 0: return
+
     attempt=0
     while int(chat_download_process.returncode) != 0:
       attempt+=1
