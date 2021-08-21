@@ -41,7 +41,7 @@ class Stream(object):
     self.final_folder = f"{(output_override or locations['final'])}/{self.safe_title}"
     self.final_output = f"{self.final_folder}/{self.safe_title}"
     self.tmp_output = f"{locations['tmp']}/{self.youtube_id}"
-    self.ignore = "DOWNLOADED" if Path(self.final_output).exists() else (False if download else ("CATEGORY" if automatic else "USER"))
+    self.ignore = "DOWNLOADED" if Path(self.final_output+'.mkv').exists() else (False if download else ("CATEGORY" if automatic else "USER"))
     self.run()
 
   def run(self):
