@@ -17,7 +17,10 @@ async def update_scheduled_streams():
 
 async def periodic_updates():
     while True:
-        await update_scheduled_streams()
+        try:
+            await update_scheduled_streams()
+        except:
+            continue
         await asyncio.sleep(60)
 
 try:
