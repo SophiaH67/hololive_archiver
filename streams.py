@@ -52,17 +52,13 @@ class Stream(object):
     self.thread.start()
   async def _attempt_chat_download(self):
     return Popen([
-      "yt-dlp",
-      "--write-info-json",
-      "--sub-langs", "all",
-      "--sub-format", "srv3/json",
-      "--skip-download",
-      "--write-subs",
-      "-o", self.tmp_output + ".%(ext)s",
+      "chat_downloader",
+      "--output", self.tmp_output + ".live_chat.json",
       self.youtube_url], stdout=DEVNULL, stderr=PIPE)
   async def _attempt_stream_download(self):
     return Popen([
       "yt-dlp",
+      "--write-info-json",
       "--keep-video",
       "--remux-video", "mkv",
       "--write-thumbnail",
@@ -86,16 +82,6 @@ class Stream(object):
       return
     if stream_download_process.returncode != 0: return
 
-    attempt=0
-    while int(chat_download_process.returncode) != 0:
-      attempt+=1
-      print(f"Failed to download chat, retrying. Attempt #{attempt}")
-      chat_download_process = await self._attempt_chat_download()
-      chat_download_process.wait()
-      await sleep(10)
-      if attempt > 4:
-        print("Chat download attempt #{attempt} failed. Abandoning")
-        break
     await self._finish_download()
 
   async def _scheduler(self):
