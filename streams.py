@@ -71,8 +71,14 @@ class Stream(object):
     chat_download_process = await self._attempt_chat_download()
     stream_download_process = await self._attempt_stream_download()
 
-    chat_download_process.wait()
-    stream_download_process.wait()
+    print(stream_download_process.returncode)
+    await sleep(5)
+    if stream_download_process.returncode is None:
+      stream_download_process.wait()
+      chat_download_process.wait()
+    else:
+      chat_download_process.terminate()
+      chat_download_process.wait()
 
     stderr=stream_download_process.stderr.read().decode('utf-8')
     if "This live event will begin in" in stderr:
@@ -80,7 +86,10 @@ class Stream(object):
     elif "This video is available to this channel's members" in stderr:
       self.ignore = "MEMBERS_ONLY"
       return
-    if stream_download_process.returncode != 0: return
+    if stream_download_process.returncode != 0:
+      chat_download_process.terminate()
+      chat_download_process.wait()
+      return
 
     await self._finish_download()
 
