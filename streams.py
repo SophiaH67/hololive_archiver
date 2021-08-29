@@ -10,6 +10,7 @@ from shutil import move
 from documentation import generate_documentation
 from asyncio import run, sleep
 from time import mktime
+from signal import SIGINT
 
 class StreamAlreadyExists(Exception):
   pass
@@ -50,6 +51,8 @@ class Stream(object):
     self.thread = Thread(target=run, args=(self._scheduler(),))
     self.thread.daemon = True
     self.thread.start()
+  
+  _chat_download_process: Popen
   async def _attempt_chat_download(self):
     return Popen([
       "chat_downloader",
@@ -68,32 +71,27 @@ class Stream(object):
 
   async def _attempt_download(self):
     print(f"[DOWNLOADER] Attempting to download {self.title} to {self.final_output}")
-    chat_download_process = await self._attempt_chat_download()
     stream_download_process = await self._attempt_stream_download()
 
-    print(stream_download_process.returncode)
-    await sleep(5)
-    if stream_download_process.returncode is None:
-      stream_download_process.wait()
-      chat_download_process.wait()
-    else:
-      chat_download_process.terminate()
-      chat_download_process.wait()
-
+    stream_download_process.wait()
+    
     stderr=stream_download_process.stderr.read().decode('utf-8')
+
     if "This live event will begin in" in stderr:
       return
     elif "This video is available to this channel's members" in stderr:
       self.ignore = "MEMBERS_ONLY"
       return
-    if stream_download_process.returncode != 0:
-      chat_download_process.terminate()
-      chat_download_process.wait()
-      return
 
+    if stream_download_process.returncode != 0: return
+
+    self._chat_download_process.send_signal(SIGINT)
+    self._chat_download_process.wait()
+    
     await self._finish_download()
 
   async def _scheduler(self):
+    self._chat_download_process = await self._attempt_chat_download()
     while not self.ignore:
       await sleep(10)
       t1 = mktime(datetime.utcnow().replace(tzinfo=None).timetuple())
