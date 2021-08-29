@@ -4,10 +4,13 @@ import asyncio
 import re
 import sys
 from config import add_stream, topics, locations
+from typing import List
 
 async def update_scheduled_streams():
     for topic in topics:
-        streams = await hololive.get_live(topic=topic, limit=50)
+        streams: List[Stream] = []
+        for channel_id in topics[topic] or [None]:
+            streams += await hololive.get_live(topic=topic, limit=50, channel_id=channel_id)
         for stream in streams:
             try:
                 add_stream(Stream(stream.title, stream.id, stream.available_at, True, True, output_override=f"{locations['final']}/{topic}/"))

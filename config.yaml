@@ -1,7 +1,10 @@
 topics: # You can see topic id's on https://docs.google.com/spreadsheets/d/1molZTK_krbT28ksljthRFiUDDiGP8TsXVh4j7m2Q3S4/edit#gid=1285117812
-    - "apex"
-    - "asmr"
-    - "singing"
+    apex: # Download only apex streams from these channels
+        - "UCDqI2jOz0weumE8s7paEk6g"
+    asmr: # Download all ASMR streams
+    singing: # Download only Singing streams from these channels
+        - "UCDqI2jOz0weumE8s7paEk6g"
+        - "UC1uv2Oq6kNxgATlCiez59hw"
 
 locations:
     tmp: /tmp/hololive/
